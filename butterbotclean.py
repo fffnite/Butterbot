@@ -16,15 +16,20 @@ class Butterbot(discord.Client):
         self.loop.create_task(self._progress_bar())
     
     def _finished_playing(self):
+        corout = self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+20*"#"+"]`")
+        fut = discord.compat.run_coroutine_threadsafe(corout, self.loop)
+        try:
+            fut.result()
+        except:
+            print("Something went wrong with running the compat coroutine")
+            
         self.player = None
         self._time_played = 0
-        if self._play_msg:
-            yield from self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+"#"*20+"]`")
-            self._play_msg = None
+        self._play_msg = None
+
         if self.queue:
-            print("Song finished, now playing", self.queue[0])
-            ytlink = self.queue.pop(0)
-            corout = self._play_song(ytlink, self.in_channel)
+            ytlink, channel = self.queue.pop(0)
+            corout = self._play_song(ytlink, self.in_channel, channel)
             fut = discord.compat.run_coroutine_threadsafe(corout, self.loop)
             try:
                 fut.result()
@@ -34,7 +39,8 @@ class Butterbot(discord.Client):
     @asyncio.coroutine
     def _play_song(self, ytlink, channel, text_channel):
         self._time_played = 0
-        self._play_msg = None 
+        self._play_msg = None
+        
         if channel != self.in_channel:
             if self.player:
                 self.player.stop()
@@ -42,12 +48,11 @@ class Butterbot(discord.Client):
                 yield from self.voice.disconnect()
             self.voice = yield from self.join_voice_channel(channel)
             self.in_channel = channel
-            
         elif self.player:
             self.player.stop()
         self.player = yield from self.voice.create_ytdl_player(ytlink, use_avconv=False, after=self._finished_playing) 
         self._play_msg = yield from self.send_message(text_channel, "Now playing: {}\n".format(self.player.title))
-        
+            
         self.player.start()
         
    # @asyncio.coroutine
@@ -58,14 +63,18 @@ class Butterbot(discord.Client):
     def _progress_bar(self):
         yield from self.wait_until_ready()
         while not self.is_closed:
-            if self._play_msg:
-                played = (int)(20*self._time_played/self.player.duration)
-                rest = (int)(20-played)
-                yield from self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+played*"#"+rest*" "+"]`")
-                self._time_played += 3
-                
+            if self._play_msg and self.player:
+                try:
+                    played = (int)(20*self._time_played/self.player.duration)
+                    rest = (int)(20-played)
+                    self._time_played += 3
+                    if self._time_played > self.player.duration:
+                        played = 20
+                        rest = 0
+                    yield from self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+played*"#"+rest*" "+"]`")
+                except:
+                    pass
             yield from asyncio.sleep(3)
-            
         
     @asyncio.coroutine
     def on_message(self, message):
@@ -77,7 +86,7 @@ class Butterbot(discord.Client):
             if (not self.player or not self.player.is_playing()) and not self.queue and not self._is_paused:
                 yield from self._play_song(ytlink, message.author.voice_channel, message.channel)
             else:
-                self.queue.append(ytlink)
+                self.queue.append((ytlink,message.channel))
                 
         elif message.content.startswith("!play"):
             try:

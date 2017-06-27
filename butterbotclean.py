@@ -18,6 +18,8 @@ class Butterbot(discord.Client):
     def _finished_playing(self):
         self.player = None
         self._time_played = 0
+        if self._play_msg:
+            yield from self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+"#"*20+"]`")
         if self.queue:
             print("Song finished, now playing", self.queue[0])
             ytlink = self.queue.pop(0)
@@ -42,9 +44,7 @@ class Butterbot(discord.Client):
             
         elif self.player:
             self.player.stop()
-        self.player = yield from self.voice.create_ytdl_player(ytlink, use_avconv=False, after=self._finished_playing)
-        if self._play_msg:
-            yield from self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+"#"*20+"]`")
+        self.player = yield from self.voice.create_ytdl_player(ytlink, use_avconv=False, after=self._finished_playing) 
         self._play_msg = yield from self.send_message(text_channel, "Now playing: {}\n".format(self.player.title))
         
         self.player.start()

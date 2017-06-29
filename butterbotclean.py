@@ -95,7 +95,9 @@ class Butterbot(discord.Client):
                 yield from self.send_message(message.channel, "A youtube link must follow the !play command.")
             yield from self._play_song(ytlink, message.author.voice_channel, message.channel)
             
-     
+        elif message.content.startswith("!overwhelmed"):
+            yield from self._play_song("https://cdn.discordapp.com/attachments/134346894464778240/329772485660901380/vs_nbarbam2_help.wav", message.author.voice_channel, message.channel)
+
         elif message.content.startswith("!stop"):
             if self.player and self.player.is_playing():
                 self.player.pause()

@@ -50,7 +50,7 @@ class Butterbot(discord.Client):
             self.in_channel = channel
         elif self.player:
             self.player.stop()
-        self.player = yield from self.voice.create_ytdl_player(ytlink, use_avconv=False, after=self._finished_playing) 
+        self.player = yield from self.voice.create_ytdl_player(ytlink, use_avconv=False, after=self._finished_playing, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 3") 
         self._play_msg = yield from self.send_message(text_channel, "Now playing: {}\n".format(self.player.title))
             
         self.player.start()

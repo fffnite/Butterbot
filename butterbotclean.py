@@ -54,11 +54,20 @@ class Butterbot(discord.Client):
         self._play_msg = yield from self.send_message(text_channel, "Now playing: {}\n".format(self.player.title))
             
         self.player.start()
-        
+
+    #Precious precious hijack command, dont remove!! //BatRiderTheGreat
+    @asyncio.coroutine
+    def _hijack_song(self, ytlink, text_channel):
+        self.player = yield from self.voice.create_ytdl_player(ytlink, use_avconv=False, after=self._finished_playing, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 3")
+        self._play_msg = yield from self.send_message(text_channel, "Now playing: {}\n".format(self.player.title))
+        self.player.start()
+    
+
    # @asyncio.coroutine
    # def on_message_edit(self, before, after):
    #     yield from self.on_message(after)
     
+
     @asyncio.coroutine
     def _progress_bar(self):
         yield from self.wait_until_ready()
@@ -75,7 +84,8 @@ class Butterbot(discord.Client):
                 except:
                     pass
             yield from asyncio.sleep(3)
-        
+    
+
     @asyncio.coroutine
     def on_message(self, message):
         if message.content.startswith("!queue"):
@@ -94,7 +104,9 @@ class Butterbot(discord.Client):
             except IndexError:
                 yield from self.send_message(message.channel, "A youtube link must follow the !play command.")
             yield from self._play_song(ytlink, message.author.voice_channel, message.channel)
-            
+        elif message.contet.startswith("!hijack"):
+            ytlink = message.content.split()[1]
+            yield from self._hijack_song(ytlink, message.channel)
         elif message.content.startswith("!overwhelmed"):
             yield from self._play_song("https://cdn.discordapp.com/attachments/134346894464778240/329772485660901380/vs_nbarbam2_help.wav", message.author.voice_channel, message.channel)
 
@@ -151,6 +163,10 @@ class Butterbot(discord.Client):
        
         elif message.content.startswith("!whatis bradley"):
             yield from self.send_message(message.channel, "Bradley: a fucking cunt.")
+        
+        #Wow, someone speaks truth here!! //BatRiderTheGreat
+        elif message.content.startswith("!whatis gw2"):
+            yield from self.send_message(message.channel, "Shitwars shitwo is pretty shit.")
         
         elif message.content.startswith("!wisdom"):
             if "{}".format(message.author) == "Rin#3028":

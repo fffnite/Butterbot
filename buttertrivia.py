@@ -11,6 +11,7 @@ def set_trivia(trivia):
     for line in file_open:
         result_tup = (line.split(":")[0], line.split(":")[1].strip().lower().split(","))
         current_trivia.append(result_tup)
+    
     file_open.close()
 
 

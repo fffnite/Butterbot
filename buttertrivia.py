@@ -11,6 +11,7 @@ def set_trivia(trivia):
     for line in file_open:
         result_tup = (line.split(":")[0], line.split(":")[1].strip().lower().split(","))
         current_trivia.append(result_tup)
+    file_open.close()
 
 
 #Gets all files in dir triviagames with the file ending .txt
@@ -62,7 +63,9 @@ def check_if_more_questions():
     else:
         current_trivia = []
         return False
-
+def delete_question():
+    global current_trivia, index
+    del current_trivia[index]
 #Checks if the provided answer is an answer in the answer list
 #if it is we remove the question from the list and return True
 #for a correct answer.
@@ -115,4 +118,31 @@ def exit_trivia():
     current_trivia = []
     score = {}
     return False
+
+def get_highscore():
+    highscore = "Trivia highscore:\n"
+    files = open("highscore.txt", "r")
+    for line in files:
+        highscore += line.split(":")[0] +" : " + line.split(":")[1] + "\n"
+    return highscore
+
+def update_highscore():
+    global score
+    file_list = []
+    highscore = {}
+    files = open("highscore.txt", "r")
+    for line in files:
+        highscore[line.split(":")[0]] = line.split(":")[1]
+    files.close()
+    open("highscore.txt", "w").close()
+    files = open("highscore.txt", "w")
+    for k,v in score.items():
+        if k not in highscore:
+            highscore[k] = 0
+        val = highscore[k]
+        highscore[k] = int(val) + v
+    for k,v in highscore.items():
+        file_list.append(str(k) + ":" + str(v))
+    files.writelines(file_list)
+    files.close()
 

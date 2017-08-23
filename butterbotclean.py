@@ -91,6 +91,22 @@ class Butterbot(discord.Client):
 
     @asyncio.coroutine
     def on_message(self, message):
+        if(self.running):
+            answer = message.content
+            if(buttertrivia.check_answer(answer)):
+                buttertrivia.give_score(str(message.author)[:-5])
+                if(self.cancermode):
+                    yield from self._play_song("https://www.youtube.com/watch?v=0gi-RYNhP8Y", message.author.voice_channel, message.channel)
+                yield from self.send_message(message.channel, "Correct!\n\nCurrent standings:\n" + buttertrivia.print_score()) 
+                if(buttertrivia.check_if_more_questions()):
+                    yield from self.send_message(message.channel, " \n" + buttertrivia.get_question())
+                else:
+                    self.running = False
+                    if(self.cancermode):
+                        yield from self._play_song("https://www.youtube.com/watch?v=q4b_RRAavJA", message.author.voice_channel, message.channel)
+                    buttertrivia.update_highscore()
+                    yield from self.send_message(message.channel, "Trivia is over!\nThe final standings are:\n" + buttertrivia.print_score() + "\nCongratulations to: " + buttertrivia.get_winner())
+
         if message.content.startswith("!queue"):
             try:
                 ytlink = message.content.split()[1]
@@ -199,6 +215,7 @@ class Butterbot(discord.Client):
         elif message.content.startswith("!trivialist"):
             yield from self.send_message(message.channel, buttertrivia.get_trivias())
         elif message.content.startswith("!triviastop"):
+            buttertrivia.update_highscore()
             yield from self.send_message(message.channel, "Trivia stopped!\nCurrent standings:\n" + buttertrivia.print_score() + "\nThe winner is: " + buttertrivia.get_winner())
             self.running = buttertrivia.exit_trivia()
         
@@ -209,30 +226,8 @@ class Butterbot(discord.Client):
             else:
                 self.cancermode = False
                 yield from self.send_message(message.channel, "Cancer mode deactivated!")
-        elif message.content.startswith("!answer"):
-            try:
-                if(self.running):
-                    answer = ' '.join(message.content.split()[1:])
-                    if(buttertrivia.check_answer(answer)):
-                        buttertrivia.give_score(str(message.author)[:-5])
-                        if(self.cancermode):
-                            yield from self._play_song("https://www.youtube.com/watch?v=0gi-RYNhP8Y", message.author.voice_channel, message.channel)
-                        yield from self.send_message(message.channel, "Correct!\n\nCurrent standings:\n" + buttertrivia.print_score()) 
-                        if(buttertrivia.check_if_more_questions()):
-                            yield from self.send_message(message.channel, " \n" + buttertrivia.get_question())
-                        else:
-                            self.running = False
-                            if(self.cancermode):
-                                yield from self._play_song("https://www.youtube.com/watch?v=q4b_RRAavJA", message.author.voice_channel, message.channel)
-
-                            yield from self.send_message(message.channel, "Trivia is over!\nThe final standings are:\n" + buttertrivia.print_score() + "\nCongratulations to: " + buttertrivia.get_winner())
-                    else:
-                        yield from self.send_message(message.channel, "Wrong answer!")
-                else:
-                    yield from self.send_message(message.channel, "No trivia game currently ongoing.")
-
-            except IndexError:
-                yield from self.send_message(message.channel, "Incorrect format, use format '!answer answer'")
+        elif message.content.startswith("!triviahighscore"):
+            yield from self.send_message(message.channel, buttertrivia.get_highscore())
         elif message.content.startswith("!trivia"):
             try:
                 trivia = message.content.split()[1]

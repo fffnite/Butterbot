@@ -149,7 +149,7 @@ class Butterbot(discord.Client):
             self.queue = []
                                                                                                                         
         elif message.content.startswith("!help"):
-            yield from self.send_message(message.channel, "Available commands:\n!play <youtube link>\n!queue <youtube link>\n!stop\n!start\n!gtfo\n!volume [0.0,2.0]\n!favword\n!wisdom\n!wordcloud")
+            yield from self.send_message(message.channel, "Available commands:\n!play <youtube link>\n!queue <youtube link>\n!stop\n!start\n!gtfo\n!volume [0.0,2.0]\n!favword\n!wisdom\n!wordcloud\n!trivia <trivia>\n!trivialist\n!triviahighscore\n!triviaadd <trivia> <question> <answer1> <answer2> ...\n!triviacancermode\n!triviastop\n!triviaquestions <trivia>\n!triviaremovequestion <trivia> <index>\n!triviadelete <trivia>")
        
         elif message.content.startswith("!favword"):
             tmp = yield from self.send_message(message.channel, 'Calculating...')
@@ -228,6 +228,38 @@ class Butterbot(discord.Client):
                 yield from self.send_message(message.channel, "Cancer mode deactivated!")
         elif message.content.startswith("!triviahighscore"):
             yield from self.send_message(message.channel, buttertrivia.get_highscore())
+        elif message.content.startswith("!triviaquestions"):
+            try:
+                trivia = message.content.split()[1]
+                yield from self.send_message(message.channel, buttertrivia.list_questions(trivia))
+            except IndexError:
+                yield from self.send_message(message.channel, "Invalid input. Use !triviaquestions <trivia>")
+        elif message.content.startswith("!triviaremove"):
+            try:
+                trivia = message.content.split()[1]
+                question_nr = message.content.split()[2]
+                buttertrivia.remove_question(trivia, question_nr)
+                yield from self.send_message(message.channel, "Successfully removed question " + str(question_nr) + " from " + trivia.capitalize())
+            except IndexError:
+                yield from self.send_message(message.channel, "Invalid inpud. Use !triviaremove <trivia> <index>")
+        elif message.content.startswith("!triviaadd"):
+            try:
+                trivia = message.content.split()[1]
+                question = message.content.split()[2]
+                answers = message.content.split(" ",3)[3:]
+                buttertrivia.add_question(trivia, question, answers)
+                yield from self.send_message(message.channel, "Successfully added question to trivia " + trivia.lower())
+            except IndexError:
+                yield from self.send_message(message.channel, "Invalid input. Use !triviaadd <trivia> <question> <answer> or !triviaadd <trivia> <question> <answer1> <answer2> ...")
+        elif message.content.startswith("!triviadelete"):
+            try:
+                trivia = message.content.split()[1]
+                if buttertrivia.remove_trivia(trivia):
+                    yield from self.send_message(message.channel, "Successfully removed trivia " + trivia.capitalize())
+                else:
+                    yield from self.send_message(message.channel, "There is no trivia with the name " + trivia.capitalize())
+            except IndexError:
+                yield from self.send_message(message.channel, "Invalid input. Use !triviadelete <trivia>")
         elif message.content.startswith("!trivia"):
             try:
                 trivia = message.content.split()[1]
@@ -242,7 +274,6 @@ class Butterbot(discord.Client):
                     yield from self.send_message(message.channel, "Theres already a trivia running!")
             except IndexError:
                 yield from self.send_message(message.channel, "To start a trivia type on the format '!trivia name'")
-        
         else:
             author = message.author
             with open("{}.txt".format(author), 'a') as f:

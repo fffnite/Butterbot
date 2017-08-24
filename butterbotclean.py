@@ -96,7 +96,7 @@ class Butterbot(discord.Client):
             if(buttertrivia.check_answer(answer)):
                 buttertrivia.give_score(str(message.author)[:-5])
                 if(self.cancermode):
-                    yield from self._play_song("https://www.youtube.com/watch?v=0gi-RYNhP8Y", message.author.voice_channel, message.channel)
+                    yield from self._play_song("https://www.youtube.com/watch?v=twyWHrHWq9E", message.author.voice_channel, message.channel)
                 yield from self.send_message(message.channel, "Correct!\n\nCurrent standings:\n" + buttertrivia.print_score()) 
                 if(buttertrivia.check_if_more_questions()):
                     yield from self.send_message(message.channel, " \n" + buttertrivia.get_question())

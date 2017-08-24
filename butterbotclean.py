@@ -103,7 +103,7 @@ class Butterbot(discord.Client):
                 else:
                     self.running = False
                     if(self.cancermode):
-                        yield from self._play_song("https://www.youtube.com/watch?v=q4b_RRAavJA", message.author.voice_channel, message.channel)
+                        yield from self._play_song("https://www.youtube.com/watch?v=UdLagrOvYII", message.author.voice_channel, message.channel)
                     buttertrivia.update_highscore()
                     yield from self.send_message(message.channel, "Trivia is over!\nThe final standings are:\n" + buttertrivia.print_score() + "\nCongratulations to: " + buttertrivia.get_winner())
 

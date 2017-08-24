@@ -1,4 +1,5 @@
 import os
+import operator
 from os import walk, listdir, remove
 from random import randint
 
@@ -143,7 +144,7 @@ def get_highscore():
     highscore = "Trivia highscore:\n"
     files = open("highscore.txt", "r")
     for line in files:
-        highscore += line.split(":")[0] +" : " + line.split(":")[1] + "\n"
+        highscore += line.split(":")[0] +" : " + line.split(":")[1]
     return highscore
 
 
@@ -154,7 +155,7 @@ def update_highscore():
     highscore = {}
     files = open("highscore.txt", "r")
     for line in files:
-        highscore[line.split(":")[0]] = line.split(":")[1]
+        highscore[line.split(":")[0]] = int(line.split(":")[1])
     files.close()
     open("highscore.txt", "w").close()
     files = open("highscore.txt", "w")
@@ -163,8 +164,10 @@ def update_highscore():
             highscore[k] = 0
         val = highscore[k]
         highscore[k] = int(val) + v
-    for k,v in highscore.items():
-        file_list.append(str(k) + ":" + str(v))
+    highscore = sorted(highscore.items(), key=operator.itemgetter(1))
+    highscore.reverse()
+    for tup in highscore:
+        file_list.append(str(tup[0]) + ":" + str(tup[1]) + "\n")
     files.writelines(file_list)
     files.close()
 

@@ -24,6 +24,9 @@ def init_commands():
         'delete':remove_trivia
     }
 
+
+#Formats the given input so that we run the correct function with
+#the correct arguments
 def format_input(input):
     keywords = input.split(" ",3)
     if keywords[0] in commands:
@@ -40,6 +43,7 @@ def format_input(input):
         return "There is no command called " + commands[0].capitalize()
 
 
+#Starts a trivia with the given parameter
 def start_trivia(trivia):
     global running
     if not running:
@@ -51,6 +55,7 @@ def start_trivia(trivia):
             return "There is no trivia with name: " + trivia.capitalize()
     else:
         return "There is already a trivia running!"
+
 
 #Opens the given trivia and loads all the questions/answers
 def set_trivia(trivia):
@@ -160,13 +165,14 @@ def get_winner():
     return winner
 
 
-#Ends the current triviagame
+#Resets global variables
 def exit_trivia():
     global current_trivia, score
     current_trivia = []
     score = {}
 
 
+#Stops the current triviagame
 def stop_trivia():
     global running
     if running:
@@ -178,6 +184,7 @@ def stop_trivia():
     else:
         return "There is currently no trivia running"
     
+
 #Get the highscore
 def get_highscore():
     highscore = "Trivia highscore:\n"

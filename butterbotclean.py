@@ -6,6 +6,7 @@ from wordcloud import WordCloud
 
 class Butterbot(discord.Client):
     def __init__(self):
+        buttertrivia.init_commands()
         self.cancermode = False
         self.running = False
         self.player = None
@@ -91,21 +92,20 @@ class Butterbot(discord.Client):
 
     @asyncio.coroutine
     def on_message(self, message):
-        if(self.running):
-            answer = message.content
-            if(buttertrivia.check_answer(answer)):
-                buttertrivia.give_score(str(message.author)[:-5])
+        answer = message.content
+        if(buttertrivia.check_answer(answer)):
+            buttertrivia.give_score(str(message.author)[:-5])
+            if(self.cancermode):
+                yield from self._play_song("https://www.youtube.com/watch?v=twyWHrHWq9E", message.author.voice_channel, message.channel)
+            yield from self.send_message(message.channel, "Correct!\n\nCurrent standings:\n" + buttertrivia.print_score()) 
+            if(buttertrivia.check_if_more_questions()):
+                yield from self.send_message(message.channel, " \n" + buttertrivia.get_question())
+            else:
+                self.running = False
                 if(self.cancermode):
-                    yield from self._play_song("https://www.youtube.com/watch?v=twyWHrHWq9E", message.author.voice_channel, message.channel)
-                yield from self.send_message(message.channel, "Correct!\n\nCurrent standings:\n" + buttertrivia.print_score()) 
-                if(buttertrivia.check_if_more_questions()):
-                    yield from self.send_message(message.channel, " \n" + buttertrivia.get_question())
-                else:
-                    self.running = False
-                    if(self.cancermode):
-                        yield from self._play_song("https://www.youtube.com/watch?v=UdLagrOvYII", message.author.voice_channel, message.channel)
-                    buttertrivia.update_highscore()
-                    yield from self.send_message(message.channel, "Trivia is over!\nThe final standings are:\n" + buttertrivia.print_score() + "\nCongratulations to: " + buttertrivia.get_winner())
+                    yield from self._play_song("https://www.youtube.com/watch?v=UdLagrOvYII", message.author.voice_channel, message.channel)
+                buttertrivia.update_highscore()
+                yield from self.send_message(message.channel, "Trivia is over!\nThe final standings are:\n" + buttertrivia.print_score() + "\nCongratulations to: " + buttertrivia.get_winner())
 
         if message.content.startswith("!queue"):
             try:
@@ -149,7 +149,7 @@ class Butterbot(discord.Client):
             self.queue = []
                                                                                                                         
         elif message.content.startswith("!help"):
-            yield from self.send_message(message.channel, "Available commands:\n!play <youtube link>\n!queue <youtube link>\n!stop\n!start\n!gtfo\n!volume [0.0,2.0]\n!favword\n!wisdom\n!wordcloud\n!trivia <trivia>\n!trivialist\n!triviahighscore\n!triviaadd <trivia> <question> <answer1> <answer2> ...\n!triviacancermode\n!triviastop\n!triviaquestions <trivia>\n!triviaremovequestion <trivia> <index>\n!triviadelete <trivia>")
+            yield from self.send_message(message.channel, "Available commands:\n!play <youtube link>\n!queue <youtube link>\n!stop\n!start\n!gtfo\n!volume [0.0,2.0]\n!favword\n!wisdom\n!wordcloud\n!trivia start <trivia>\n!trivia list\n!trivia highscore\n!trivia add <trivia> <question> <answer1> <answer2> ...\n!triviacancermode\n!trivia stop\n!trivia questions <trivia>\n!trivia removequestion <trivia> <index>\n!trivia delete <trivia>")
        
         elif message.content.startswith("!favword"):
             tmp = yield from self.send_message(message.channel, 'Calculating...')
@@ -211,71 +211,20 @@ class Butterbot(discord.Client):
                     yield from self.send_file(message.channel,fp='test.jpg')
             except:              
                 yield from self.send_message(message.channel, "Sorry, couldn't generate the cloud. Probably because I've not got enough words recorded from you.")
-
-        elif message.content.startswith("!trivialist"):
-            yield from self.send_message(message.channel, buttertrivia.get_trivias())
-        elif message.content.startswith("!triviastop"):
-            if(self.running):
-                buttertrivia.update_highscore()
-                yield from self.send_message(message.channel, "Trivia stopped!\nCurrent standings:\n" + buttertrivia.print_score() + "\nThe winner is: " + buttertrivia.get_winner())
-                self.running = buttertrivia.exit_trivia()
-            else:
-                yield from self.send_message(message.channel, "There is currently no trivia running")
-        
         elif message.content.startswith("!triviacancermode"):
             if not self.cancermode:
                 self.cancermode = True
-                yield from self.send_message(message.channel, "Cancer mode activated!")
+                yield from self.send_message(message.channel, "Cancer mde activated")
             else:
                 self.cancermode = False
-                yield from self.send_message(message.channel, "Cancer mode deactivated!")
-        elif message.content.startswith("!triviahighscore"):
-            yield from self.send_message(message.channel, buttertrivia.get_highscore())
-        elif message.content.startswith("!triviaquestions"):
-            try:
-                trivia = message.content.split()[1]
-                yield from self.send_message(message.channel, buttertrivia.list_questions(trivia))
-            except IndexError:
-                yield from self.send_message(message.channel, "Invalid input. Use !triviaquestions <trivia>")
-        elif message.content.startswith("!triviaremovequestion"):
-            try:
-                trivia = message.content.split()[1]
-                question_nr = message.content.split()[2]
-                yield from self.send_message(message.channel, buttertrivia.remove_question(trivia, question_nr))
-            except IndexError:
-                yield from self.send_message(message.channel, "Invalid inpud. Use !triviaremove <trivia> <index>")
-        elif message.content.startswith("!triviaadd"):
-            try:
-                trivia = message.content.split()[1]
-                question = message.content.split()[2]
-                answers = message.content.split(" ",3)[3:]
-                buttertrivia.add_question(trivia, question, answers)
-                yield from self.send_message(message.channel, "Successfully added question to trivia " + trivia.lower())
-            except IndexError:
-                yield from self.send_message(message.channel, "Invalid input. Use !triviaadd <trivia> <question> <answer> or !triviaadd <trivia> <question> <answer1> <answer2> ...")
-        elif message.content.startswith("!triviadelete"):
-            try:
-                trivia = message.content.split()[1]
-                if buttertrivia.remove_trivia(trivia):
-                    yield from self.send_message(message.channel, "Successfully removed trivia " + trivia.capitalize())
-                else:
-                    yield from self.send_message(message.channel, "There is no trivia with the name " + trivia.capitalize())
-            except IndexError:
-                yield from self.send_message(message.channel, "Invalid input. Use !triviadelete <trivia>")
+                yield from self.send_message(message.channel, "Cancer mode deactivated")
         elif message.content.startswith("!trivia"):
             try:
-                trivia = message.content.split()[1]
-                if not self.running:
-                    self.running = buttertrivia.search_trivias(trivia)
-                    if(self.running):
-                        buttertrivia.set_trivia(trivia)
-                        yield from self.send_message(message.channel, "Successfully initialized trivia " + trivia.capitalize() + "!\n" + buttertrivia.get_question())
-                    else:
-                        yield from self.send_message(message.channel, "There is no trivia with name: " + trivia)
-                elif self.running:
-                    yield from self.send_message(message.channel, "Theres already a trivia running!")
-            except IndexError:
-                yield from self.send_message(message.channel, "To start a trivia type on the format '!trivia name'")
+                input_function = message.content.split(" ", 1)[1]
+                yield from self.send_message(message.channel, buttertrivia.format_input(input_function))
+            except Exception as e:
+                print(e)
+                yield from self.send_message(message.channel, "Something went wrong ")
         else:
             author = message.author
             with open("{}.txt".format(author), 'a') as f:

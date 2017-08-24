@@ -2,12 +2,55 @@ import os
 import operator
 from os import walk, listdir, remove
 from random import randint
-
+from inspect import signature
 
 current_trivia = []
 index = 0
 score = {}
+running = False
+commands = None
 
+
+def init_commands():
+    global commands
+    commands = {
+        'start':start_trivia,
+        'add':add_question,
+        'list':get_trivias,
+        'highscore':get_highscore,
+        'stop':stop_trivia,
+        'questions':list_questions,
+        'removequestion':remove_question,
+        'delete':remove_trivia
+    }
+
+def format_input(input):
+    keywords = input.split(" ",3)
+    if keywords[0] in commands:
+        function = commands[keywords[0]]
+        function_sig = signature(function)
+        if len(function_sig.parameters) == len(keywords) - 1:
+            if(len(keywords)-1 > 0):
+                return function(*keywords[1:])
+            else:
+                return function()
+        else:
+            return "Wrong amount of arguments, expected amount: " + str(len(function_sig.parameters))
+    else:
+        return "There is no command called " + commands[0].capitalize()
+
+
+def start_trivia(trivia):
+    global running
+    if not running:
+        running = search_trivias(trivia)
+        if running:
+            set_trivia(trivia)
+            return "Successfully initialized trivia " + trivia.capitalize() + "\n" + get_question()
+        else:
+            return "There is no trivia with name: " + trivia.capitalize()
+    else:
+        return "There is already a trivia running!"
 
 #Opens the given trivia and loads all the questions/answers
 def set_trivia(trivia):
@@ -102,7 +145,7 @@ def print_score():
 #Gets the highest person(s) in the scorelist as winner for the trivia
 #game
 def get_winner():
-    global score
+    global score, running
     winner = ""
     prev_val = 0
     for k,v in score.items():
@@ -113,31 +156,40 @@ def get_winner():
                 prev_val = v
                 winner = k
     score = {}
+    running = False
     return winner
 
 
 #Ends the current triviagame
 def exit_trivia():
-    global current_trivia, index, score
+    global current_trivia, score
     current_trivia = []
     score = {}
-    return False
 
 
+def stop_trivia():
+    global running
+    if running:
+        update_highscore()
+        result = "Trivia stopped!\nCurrent standings:\n" + print_score() + "\nThe winner is: " + get_winner()
+        exit_trivia()
+        running = False
+        return result
+    else:
+        return "There is currently no trivia running"
+    
 #Get the highscore
 def get_highscore():
     highscore = "Trivia highscore:\n"
     files = open("highscore.txt", "r")
     highscore +=  "".join(line.split(":")[0] + " : " + line.split(":")[1] for line in files)
     return highscore
-    #for line in files:
-    #    highscore += line.split(":")[0] +" : " + line.split(":")[1]
-    #return highscore
 
 
 #Update the highscore based on the last played trivia
 def update_highscore():
     global score
+    print("Körs detta?")
     file_list = []
     files = open("highscore.txt", "r")
     highscore = { line.split(":")[0]: int(line.split(":")[1]) for line in files }
@@ -148,22 +200,10 @@ def update_highscore():
     
     highscore = { k: ( int(highscore[k]) if k in highscore else 0 ) + v 
                   for k,v in score.items() }
-    print("Highscore dict built")
-    print(highscore)
-    #for k,v in score.items():
-    #    if k not in highscore:
-    #        highscore[k] = 0
-    #    val = highscore[k]
-    #    highscore[k] = int(val) + v
     
     highscore = sorted(highscore.items(), key=operator.itemgetter(1))
     highscore.reverse()
-    print("Sorted highscore:")
-    print(highscore)
     files.writelines([ str(tup[0]) + ":" + str(tup[1]) + "\n" for tup in highscore ])
-    #for tup in highscore:
-    #    file_list.append(str(tup[0]) + ":" + str(tup[1]) + "\n")
-    #files.writelines(file_list)
     files.close()
 
 
@@ -172,14 +212,13 @@ def update_highscore():
 def add_question(trivia, question, answers):
     result = ""
     result += question + ":"
-    answers = answers[0].split(" ")
-    
+    answers = answers.split(",") 
+    answers = [ answer.strip() for answer in answers ]
     result += ",".join(answers)
-    print("Result with answers")
-    print(result)
     result += "\n"
     with open("triviagames/" + trivia.lower() + ".txt", "a") as files:
         files.write(result)
+    return "Successfully added question to trivia " + trivia.lower()
 
 
 #Lists all questions for a given trivia
@@ -224,6 +263,6 @@ def remove_question(trivia, question_nr):
 def remove_trivia(trivia):
     try:
         os.remove("triviagames/" + trivia.lower() + ".txt")
-        return True
+        return "Successfully removed trivia " + trivia.capitalize()
     except OSError:
-        return False
+        return "There is no trivia with name " + trivia.capitalize()

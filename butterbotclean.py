@@ -215,9 +215,12 @@ class Butterbot(discord.Client):
         elif message.content.startswith("!trivialist"):
             yield from self.send_message(message.channel, buttertrivia.get_trivias())
         elif message.content.startswith("!triviastop"):
-            buttertrivia.update_highscore()
-            yield from self.send_message(message.channel, "Trivia stopped!\nCurrent standings:\n" + buttertrivia.print_score() + "\nThe winner is: " + buttertrivia.get_winner())
-            self.running = buttertrivia.exit_trivia()
+            if(self.running):
+                buttertrivia.update_highscore()
+                yield from self.send_message(message.channel, "Trivia stopped!\nCurrent standings:\n" + buttertrivia.print_score() + "\nThe winner is: " + buttertrivia.get_winner())
+                self.running = buttertrivia.exit_trivia()
+            else:
+                yield from self.send_message(message.channel, "There is currently no trivia running")
         
         elif message.content.startswith("!triviacancermode"):
             if not self.cancermode:
@@ -234,12 +237,11 @@ class Butterbot(discord.Client):
                 yield from self.send_message(message.channel, buttertrivia.list_questions(trivia))
             except IndexError:
                 yield from self.send_message(message.channel, "Invalid input. Use !triviaquestions <trivia>")
-        elif message.content.startswith("!triviaremove"):
+        elif message.content.startswith("!triviaremovequestion"):
             try:
                 trivia = message.content.split()[1]
                 question_nr = message.content.split()[2]
-                buttertrivia.remove_question(trivia, question_nr)
-                yield from self.send_message(message.channel, "Successfully removed question " + str(question_nr) + " from " + trivia.capitalize())
+                yield from self.send_message(message.channel, buttertrivia.remove_question(trivia, question_nr))
             except IndexError:
                 yield from self.send_message(message.channel, "Invalid inpud. Use !triviaremove <trivia> <index>")
         elif message.content.startswith("!triviaadd"):

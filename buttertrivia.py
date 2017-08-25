@@ -196,7 +196,6 @@ def get_highscore():
 #Update the highscore based on the last played trivia
 def update_highscore():
     global score
-    print("Körs detta?")
     file_list = []
     files = open("highscore.txt", "r")
     highscore = { line.split(":")[0]: int(line.split(":")[1]) for line in files }

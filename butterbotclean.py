@@ -350,5 +350,4 @@ class Butterbot(discord.Client):
         
 if __name__ == "__main__":
     bot = Butterbot()
-    bot.init_commands()
     bot.run('MzQ5NTEyOTc5MDIyMzQ4Mjkx.DH2nZg.s_4FdamAf96BljdzT3Bb7m2fgCw')

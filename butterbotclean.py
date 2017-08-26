@@ -252,7 +252,7 @@ class Butterbot(discord.Client):
         elif arg.lower() == "gw2":
             yield from self.send_message(message.channel, "Shitwars shitwo is pretty shit.")
         else:
-            yield from send_message(message.channel, "I dont know, ask someone else!")
+            yield from self.send_message(message.channel, "I dont know, ask someone else!")
     
     @asyncio.coroutine
     def wisdom_command(self, message):
@@ -350,4 +350,4 @@ class Butterbot(discord.Client):
         
 if __name__ == "__main__":
     bot = Butterbot()
-    bot.run('MzQ5NTEyOTc5MDIyMzQ4Mjkx.DH2nZg.s_4FdamAf96BljdzT3Bb7m2fgCw')
+    bot.run('MjYxNzYyODgwNzIwODYzMjMy.Cz54hg.x9WpKFMGjHASFrxS3Myh_EDJ9Kc')

@@ -302,7 +302,7 @@ class Butterbot(discord.Client):
             yield from self.send_message(message.channel, buttertrivia.format_input(input_function))
         except Exception as e:
             print(e)
-            yield from self.send_message(message.channel, "Something went wrong ")
+            yield from self.send_message(message.channel, "Invalid command, use !help to see available commands ")
 
     
     @asyncio.coroutine

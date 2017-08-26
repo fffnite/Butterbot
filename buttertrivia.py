@@ -28,7 +28,7 @@ def init_commands():
 #Formats the given input so that we run the correct function with
 #the correct arguments
 def format_input(input):
-    keywords = input.split(" ",3)
+    keywords = input.split(" ",2)
     if keywords[0] in commands:
         function = commands[keywords[0]]
         function_sig = signature(function)
@@ -215,10 +215,11 @@ def update_highscore():
 
 #Add a question to a trivia, if the trivia doesnt exist, create it 
 #and put that question in it.
-def add_question(trivia, question, answers):
+def add_question(trivia, input_question):
+    print(input_question)
     result = ""
-    result += question + ":"
-    answers = answers.split(",") 
+    result += input_question.split(",")[0] + ":"
+    answers = input_question.split(",")[1:] 
     answers = [ answer.strip() for answer in answers ]
     result += ",".join(answers)
     result += "\n"

@@ -33,7 +33,7 @@ def format_input(input):
         function = commands[keywords[0]]
         function_sig = signature(function)
         if len(function_sig.parameters) == len(keywords) - 1:
-            if(len(keywords)-1 > 0):
+            if len(keywords)-1 > 0:
                 return function(*keywords[1:])
             else:
                 return function()

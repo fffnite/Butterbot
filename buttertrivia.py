@@ -1,5 +1,6 @@
 import os
 import operator
+import random
 from os import walk, listdir, remove
 from random import randint
 from inspect import signature
@@ -15,12 +16,12 @@ def init_commands():
     global commands
     commands = {
         'start':start_trivia,
-        'add':add_question,
+        #'add':add_question,
         'list':get_trivias,
         'highscore':get_highscore,
         'stop':stop_trivia,
-        'questions':list_questions,
-        'removequestion':remove_question,
+        #'questions':list_questions,
+        #'removequestion':remove_question,
         'delete':remove_trivia
     }
 
@@ -58,13 +59,16 @@ def start_trivia(trivia):
 
 
 #Opens the given trivia and loads all the questions/answers
-def set_trivia(trivia):
+def set_trivia(trivia, nr_of_questions = 2):
     file_open = open("triviagames/{}.txt".format(trivia.lower()), "r")
-    
-    #.txt format = "":"","","" per rad
-    for line in file_open:
-        result_tup = (line.split(":")[0], line.split(":")[1].strip().lower().split(","))
+    all_lines = file_open.readlines()
+    if len(all_lines) < nr_of_questions:
+        return "There is only " + str(len(all_lines)) + " lines in " + trivia.capitalize()
+    lines = random.sample(all_lines, nr_of_questions)
+    for line in lines:
+        result_tup = (line.split("$")[0], line.split("$")[1].strip().lower().split(","))
         current_trivia.append(result_tup) 
+    print(len(current_trivia))
     file_open.close()
 
 
@@ -218,7 +222,7 @@ def update_highscore():
 def add_question(trivia, input_question):
     print(input_question)
     result = ""
-    result += input_question.split(",")[0] + ":"
+    result += input_question.split(",")[0] + "$"
     answers = input_question.split(",")[1:] 
     answers = [ answer.strip() for answer in answers ]
     result += ",".join(answers)
@@ -235,7 +239,7 @@ def list_questions(trivia):
         result = "All questions in " + trivia.capitalize() + "\n"
         questions = [ line for line in files_read ]
         files_read.close()
-        result += "\n".join("{}. {}".format(i, question.split(":")[0]) 
+        result += "\n".join("{}. {}".format(i, question.split("$")[0]) 
                             for i, question in enumerate(questions))
         if questions == []:
             result = "There is currently no questions in trivia " + trivia.capitalize()

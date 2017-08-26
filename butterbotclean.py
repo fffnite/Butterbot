@@ -133,11 +133,8 @@ class Butterbot(discord.Client):
         !trivia start <trivia>
         !trivia list
         !trivia highscore
-        !trivia add <trivia> <question> <answer1> <answer2> ...
         !triviacancermode
         !trivia stop
-        !trivia questions <trivia>
-        !trivia removequestion <trivia> <index>
         !trivia delete <trivia>
         """
         yield from self.send_message(message.channel, commands)

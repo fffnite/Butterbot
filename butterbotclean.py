@@ -339,7 +339,7 @@ class Butterbot(discord.Client):
                     try:
                         f.write(word+"\n")
                     except:
-                        pass
+                    
     @asyncio.coroutine
     def on_ready(self):
         print("Logged in as: ", self.user.name)
@@ -348,4 +348,4 @@ class Butterbot(discord.Client):
         
 if __name__ == "__main__":
     bot = Butterbot()
-    bot.run('MzQ5NTEyOTc5MDIyMzQ4Mjkx.DIb46w.x1vZxPEMIXXFIlbg-NxBRHJrXDg')
+    bot.run('MjYxNzYyODgwNzIwODYzMjMy.Cz54hg.x9WpKFMGjHASFrxS3Myh_EDJ9Kc')

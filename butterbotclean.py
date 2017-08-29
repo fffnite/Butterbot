@@ -136,6 +136,7 @@ class Butterbot(discord.Client):
         !triviacancermode
         !trivia stop
         !trivia delete <trivia>
+        !trivia setquestions <number>
         """
         yield from self.send_message(message.channel, commands)
     
@@ -347,4 +348,4 @@ class Butterbot(discord.Client):
         
 if __name__ == "__main__":
     bot = Butterbot()
-    bot.run('MjYxNzYyODgwNzIwODYzMjMy.Cz54hg.x9WpKFMGjHASFrxS3Myh_EDJ9Kc')
+    bot.run('MzQ5NTEyOTc5MDIyMzQ4Mjkx.DIb46w.x1vZxPEMIXXFIlbg-NxBRHJrXDg')

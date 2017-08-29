@@ -10,7 +10,7 @@ index = 0
 score = {}
 running = False
 commands = None
-
+nr_of_questions = 10
 
 def init_commands():
     global commands
@@ -22,6 +22,7 @@ def init_commands():
         'stop':stop_trivia,
         #'questions':list_questions,
         #'removequestion':remove_question,
+        'setquestions':set_questions,
         'delete':remove_trivia
     }
 
@@ -37,20 +38,27 @@ def format_input(input):
             if len(keywords)-1 > 0:
                 return function(*keywords[1:])
             else:
-                return function()
+                return function() 
         else:
             return "Wrong amount of arguments, expected amount: " + str(len(function_sig.parameters))
     else:
         return "There is no command called " + commands[0].capitalize()
 
 
+def set_questions(arg_val):
+    global nr_of_questions
+    nr_of_questions = int(arg_val)
+    return "Number of questions has been set to " + str(nr_of_questions)
+
+
 #Starts a trivia with the given parameter
 def start_trivia(trivia):
-    global running
+    global running, nr_of_questions
+    question_nr = nr_of_questions
     if not running:
         running = search_trivias(trivia)
         if running:
-            set_trivia(trivia)
+            set_trivia(trivia, question_nr)
             return "Successfully initialized trivia " + trivia.capitalize() + "\n" + get_question()
         else:
             return "There is no trivia with name: " + trivia.capitalize()
@@ -59,7 +67,8 @@ def start_trivia(trivia):
 
 
 #Opens the given trivia and loads all the questions/answers
-def set_trivia(trivia, nr_of_questions = 2):
+def set_trivia(trivia, nr_of_questions):
+    nr_of_questions = int(nr_of_questions)
     file_open = open("triviagames/{}.txt".format(trivia.lower()), "r")
     all_lines = file_open.readlines()
     if len(all_lines) < nr_of_questions:

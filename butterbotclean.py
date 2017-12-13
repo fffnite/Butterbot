@@ -1,3 +1,4 @@
+import os
 import discord
 import asyncio
 import operator
@@ -19,7 +20,13 @@ class Butterbot(discord.Client):
         self._time_played = 0
         super().__init__()
         self.loop.create_task(self._progress_bar())
-    
+  
+    #Call/create logs
+    def getLogFile(self,author):
+        dir = os.path.dirname(__file__)
+        dir = os.path.join(dir,'logs/{}.txt'.format(author))
+        return dir
+
     def _finished_playing(self):
         corout = self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+20*"#"+"]`")
         fut = discord.compat.run_coroutine_threadsafe(corout, self.loop)
@@ -213,7 +220,7 @@ class Butterbot(discord.Client):
     @asyncio.coroutine
     def favword_command(self, message):
         tmp = yield from self.send_message(message.channel, 'Calculating...')
-        with open("{}.txt".format(message.author), 'r') as f:
+        with open(self.getLogFile(message.author), 'r') as f:
             words = f.read().split()
             wordcount = {}
             for word in words:
@@ -273,7 +280,7 @@ class Butterbot(discord.Client):
     def wordcloud_command(self, message):
         author = message.author
         try:
-            with open("{}.txt".format(author), 'r') as f:
+            with open(self.getLogFile(author), 'r') as f:
                 words = f.read()
                 wordcloud = WordCloud(width=1024, height=768).generate(words)
                 image = wordcloud.to_image()
@@ -334,7 +341,7 @@ class Butterbot(discord.Client):
             yield from self.format_input(message) 
         else:
             author = message.author
-            with open("{}.txt".format(author), 'a') as f:
+            with open(self.getLogFile(author), 'a') as f:
                 for word in message.content.split():
                     try:
                         f.write(word+"\n")

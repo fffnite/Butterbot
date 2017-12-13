@@ -86,7 +86,7 @@ def set_trivia(trivia, nr_of_questions):
 #the filenames capitalized. We then return a list of these filenames
 def get_trivias_list():
 	directory = os.path.dirname(__file__)
-	directory = os.path.join(directory, 'triviagames/{}.txt'.format(author))
+	directory = os.path.join(directory, 'triviagames/')
 	return [ str(f).split(".")[0].capitalize() for f in listdir(directory) if f.endswith(".txt") ]
 
 

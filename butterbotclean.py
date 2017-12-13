@@ -22,7 +22,7 @@ class Butterbot(discord.Client):
         self.loop.create_task(self._progress_bar())
   
     #Call/create logs
-    def getLogFile(self,author):
+    def _get_log_dir(self,author):
         directory = os.path.dirname(__file__)
         directory = os.path.join(directory, 'logs/{}.txt'.format(author))
         return directory
@@ -220,7 +220,7 @@ class Butterbot(discord.Client):
     @asyncio.coroutine
     def favword_command(self, message):
         tmp = yield from self.send_message(message.channel, 'Calculating...')
-        with open(self.getLogFile(message.author), 'r') as f:
+        with open(self._get_log_dir(message.author), 'r') as f:
             words = f.read().split()
             wordcount = {}
             for word in words:
@@ -280,7 +280,7 @@ class Butterbot(discord.Client):
     def wordcloud_command(self, message):
         author = message.author
         try:
-            with open(self.getLogFile(author), 'r') as f:
+            with open(self._get_log_dir(author), 'r') as f:
                 words = f.read()
                 wordcloud = WordCloud(width=1024, height=768).generate(words)
                 image = wordcloud.to_image()
@@ -341,7 +341,7 @@ class Butterbot(discord.Client):
             yield from self.format_input(message) 
         else:	
             author = message.author
-            with open(self.getLogFile(author), 'a') as f:
+            with open(self._get_log_dir(author), 'a') as f:
                 for word in message.content.split():
                     try:
                         f.write(word+"\n")

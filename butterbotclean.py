@@ -23,9 +23,9 @@ class Butterbot(discord.Client):
   
     #Call/create logs
     def getLogFile(self,author):
-        dir = os.path.dirname(__file__)
-        dir = os.path.join(dir,'logs/{}.txt'.format(author))
-        return dir
+        directory = os.path.dirname(__file__)
+        directory = os.path.join(directory, 'logs/{}.txt'.format(author))
+        return directory
 
     def _finished_playing(self):
         corout = self.edit_message(self._play_msg, "Now playing: {}\n`".format(self.player.title)+"["+20*"#"+"]`")
@@ -339,7 +339,7 @@ class Butterbot(discord.Client):
         yield from self.trivia_answer(message)
         if message.content.startswith("!"):
             yield from self.format_input(message) 
-        else:
+        else:	
             author = message.author
             with open(self.getLogFile(author), 'a') as f:
                 for word in message.content.split():

@@ -85,9 +85,9 @@ def set_trivia(trivia, nr_of_questions):
 #then splits each file on . and capitalizes it so we only get
 #the filenames capitalized. We then return a list of these filenames
 def get_trivias_list():
-    return [ str(f).split(".")[0].capitalize()
-             for f in listdir("triviagames") 
-             if f.endswith(".txt") ]
+	directory = os.path.dirname(__file__)
+	directory = os.path.join(directory, 'triviagames/{}.txt'.format(author))
+	return [ str(f).split(".")[0].capitalize() for f in listdir(directory) if f.endswith(".txt") ]
 
 
 #Returns all trivias as an output string to be viewed in discord.
@@ -208,81 +208,92 @@ def get_highscore():
 
 #Update the highscore based on the last played trivia
 def update_highscore():
-    global score
-    file_list = []
-    files = open("highscore.txt", "r")
-    highscore = { line.split(":")[0]: int(line.split(":")[1]) for line in files }
-    files.close()
+	global score
+	highscore_dir = os.path.dirname(__file__)
+	highscore_file = os.path.join(highscore_dir, 'highscore.txt')
 
-    open("highscore.txt", "w").close()
-    files = open("highscore.txt", "w")
-    
-    highscore = { k: ( int(highscore[k]) if k in highscore else 0 ) + v 
-                  for k,v in score.items() }
-    
-    highscore = sorted(highscore.items(), key=operator.itemgetter(1))
-    highscore.reverse()
-    files.writelines([ str(tup[0]) + ":" + str(tup[1]) + "\n" for tup in highscore ])
-    files.close()
+	file_list = []
+	files = open(highscore_file, "r")
+	highscore = { line.split(":")[0]: int(line.split(":")[1]) for line in files }
+	files.close()
+
+	open(highscore_file, "w").close()
+	files = open(highscore_file, "w")
+
+	highscore = { k: ( int(highscore[k]) if k in highscore else 0 ) + v 
+				  for k,v in score.items() }
+
+	highscore = sorted(highscore.items(), key=operator.itemgetter(1))
+	highscore.reverse()
+	files.writelines([ str(tup[0]) + ":" + str(tup[1]) + "\n" for tup in highscore ])
+	files.close()
 
 
 #Add a question to a trivia, if the trivia doesnt exist, create it 
 #and put that question in it.
 def add_question(trivia, input_question):
-    print(input_question)
-    result = ""
-    result += input_question.split(",")[0] + "$"
-    answers = input_question.split(",")[1:] 
-    answers = [ answer.strip() for answer in answers ]
-    result += ",".join(answers)
-    result += "\n"
-    with open("triviagames/" + trivia.lower() + ".txt", "a") as files:
-        files.write(result)
-    return "Successfully added question to trivia " + trivia.lower()
+	print(input_question)
+	result = ""
+	result += input_question.split(",")[0] + "$"
+	answers = input_question.split(",")[1:] 
+	answers = [ answer.strip() for answer in answers ]
+	result += ",".join(answers)
+	result += "\n"
+	trivia_directory = os.path.dirname(__file__)
+	trivia_file = os.path.join(trivia_directory, 'triviagames/'+ trivia.lower() + ".txt")
+	with open(trivia_file , "a") as files:
+		files.write(result)
+	return "Successfully added question to trivia " + trivia.lower()
 
 
 #Lists all questions for a given trivia
 def list_questions(trivia):
-    if search_trivias(trivia.lower()):
-        files_read = open("triviagames/" + trivia.lower() + ".txt", "r")
-        result = "All questions in " + trivia.capitalize() + "\n"
-        questions = [ line for line in files_read ]
-        files_read.close()
-        result += "\n".join("{}. {}".format(i, question.split("$")[0]) 
-                            for i, question in enumerate(questions))
-        if questions == []:
-            result = "There is currently no questions in trivia " + trivia.capitalize()
-    else:
-        result = "There is no trivia with name " + trivia.capitalize()
-    return result
+	trivia_directory = os.path.dirname(__file__)
+	trivia_file = os.path.join(trivia_directory, 'triviagames/'+ trivia.lower() + ".txt")
+	if search_trivias(trivia.lower()):
+		files_read = open(trivia_file, "r")
+		result = "All questions in " + trivia.capitalize() + "\n"
+		questions = [ line for line in files_read ]
+		files_read.close()
+		result += "\n".join("{}. {}".format(i, question.split("$")[0]) 
+							for i, question in enumerate(questions))
+		if questions == []:
+			result = "There is currently no questions in trivia " + trivia.capitalize()
+	else:
+		result = "There is no trivia with name " + trivia.capitalize()
+	return result
 
 
 #Removes a question on the provided trivia on the provided index
 #Get the index from list_questions
 def remove_question(trivia, question_nr):
-    if search_trivias(trivia.lower()):
-        files_read = open("triviagames/" + trivia.lower() + ".txt", "r")
-        questions = [ line for line in files_read ]
-        try:
-            del questions[int(question_nr)]
-        except IndexError:
-            return "Invalid index for trivia " + trivia.capitalize()
-        files_read.close()
+	if search_trivias(trivia.lower()):
+		trivia_directory = os.path.dirname(__file__)
+		trivia_file = os.path.join(trivia_directory, 'triviagames/'+ trivia.lower() + ".txt")
+		files_read = open(trivia_file, "r")
+		questions = [ line for line in files_read ]
+		try:
+			del questions[int(question_nr)]
+		except IndexError:
+			return "Invalid index for trivia " + trivia.capitalize()
+		files_read.close()
 
-        open("triviagames/" + trivia.lower() + ".txt", "w").close()
+		open(trivia_file, "w").close()
 
-        files_write = open("triviagames/" + trivia.lower() + ".txt", "w")
-        files_write.writelines(questions)
-        files_write.close()
-        return "Successfully removed question " + question_nr + " from trivia " + trivia.capitalize()
-    else:
-        return "There is no trivia named " + trivia.capitalize()
+		files_write = open(trivia_file, "w")
+		files_write.writelines(questions)
+		files_write.close()
+		return "Successfully removed question " + question_nr + " from trivia " + trivia.capitalize()
+	else:
+		return "There is no trivia named " + trivia.capitalize()
 
 
 #Removes the trivia
 def remove_trivia(trivia):
-    try:
-        os.remove("triviagames/" + trivia.lower() + ".txt")
-        return "Successfully removed trivia " + trivia.capitalize()
-    except OSError:
-        return "There is no trivia with name " + trivia.capitalize()
+	trivia_directory = os.path.dirname(__file__)
+	trivia_file = os.path.join(trivia_directory, 'triviagames/'+ trivia.lower() + ".txt")
+	try:
+		os.remove(trivia_file)
+		return "Successfully removed trivia " + trivia.capitalize()
+	except OSError:
+		return "There is no trivia with name " + trivia.capitalize()

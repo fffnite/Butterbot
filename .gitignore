@@ -3,3 +3,4 @@ __pycache__
 *.pc
 highscore.txt
 logs/
+token.txt

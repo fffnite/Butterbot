@@ -356,7 +356,9 @@ class Butterbot(discord.Client):
 if __name__ == "__main__":
     bot = Butterbot() 
     token = ''
-    with open('token.txt', 'r') as f:
+    token_path = os.path.dirname(__file__)
+	token_path = os.path.join(token_path, 'token.txt'.format(author))
+    with open(token_path, 'r') as f:
 		token = f.readline()
 	if token:
 		bot.run(token)

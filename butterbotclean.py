@@ -354,5 +354,11 @@ class Butterbot(discord.Client):
         print("----------")
         
 if __name__ == "__main__":
-    bot = Butterbot()
-    bot.run('MjYxNzYyODgwNzIwODYzMjMy.Cz54hg.x9WpKFMGjHASFrxS3Myh_EDJ9Kc')
+    bot = Butterbot() 
+    token = ''
+    with open('token.txt', 'r') as f:
+		token = f.readline()
+	if token:
+		bot.run(token)
+	else
+		print("u fukd up m8")

@@ -360,7 +360,7 @@ if __name__ == "__main__":
     token_path = os.path.join(token_path, 'token.txt'.format(author))
     with open(token_path, 'r') as f:
         token = f.readline()
-	if token:
+    if token:
         bot.run(token)
     else
         print("u fukd up m8")

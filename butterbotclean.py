@@ -362,5 +362,5 @@ if __name__ == "__main__":
         token = f.readline()
     if token:
         bot.run(token)
-    else
+    else:
         print("u fukd up m8")

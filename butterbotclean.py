@@ -357,7 +357,7 @@ if __name__ == "__main__":
     bot = Butterbot() 
     token = ''
     token_path = os.path.dirname(__file__)
-    token_path = os.path.join(token_path, 'token.txt'.format(author))
+    token_path = os.path.join(token_path, 'token.txt')
     with open(token_path, 'r') as f:
         token = f.readline()
     if token:
